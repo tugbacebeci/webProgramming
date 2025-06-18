@@ -1,80 +1,210 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Kitap Listesi</title>
 </head>
 <body>
   <h2>Tüm Kitaplar</h2>
-
   <div id="bookList"></div>
-
   <button onclick="window.location.href='dashboard.html'">Geri Dön</button>
 
   <script>
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
+    let currentUserId = null;
+
     if (!token) {
       alert("Giriş yapmalısın!");
       window.location.href = "login.html";
     }
 
-    // Kitapları çek
-    fetch("http://localhost:4000/api/books", {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+    // Kullanıcı bilgisi
+    fetch("http://localhost:4000/api/auth/profile", {
+      headers: { Authorization: `Bearer ${token}` },
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        const listDiv = document.getElementById("bookList");
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          currentUserId = data.user.id;
+          loadBooks();
+        } else {
+          alert("Profil alınamadı.");
+          window.location.href = "login.html";
+        }
+      });
 
-        data.books.forEach(book => {
-          const bookDiv = document.createElement("div");
-          bookDiv.innerHTML = `
-            <h3>${book.title}</h3>
-            <p><strong>Yazar:</strong> ${book.author}</p>
-            <p><strong>Açıklama:</strong> ${book.description}</p>
-            ${book.cover_url ? `<img src="${book.cover_url}" width="100">` : ""}
-            <div id="reviews-${book.id}"><em>Yorumlar yükleniyor...</em></div>
-            <hr>
-          `;
-          listDiv.appendChild(bookDiv);
+    // Kitapları ve yorumları getir
+    function loadBooks() {
+      fetch("http://localhost:4000/api/books", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            const listDiv = document.getElementById("bookList");
 
-          // Her kitap için yorumları çek
-          fetch(`http://localhost:4000/api/reviews/${book.id}`, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-            })
+            data.books.forEach((book) => {
+              const bookDiv = document.createElement("div");
+              bookDiv.innerHTML = `
+                <h3>${book.title}</h3>
+                <p><strong>Yazar:</strong> ${book.author}</p>
+                <p><strong>Açıklama:</strong> ${book.description}</p>
+                ${book.cover_url ? `<img src="${book.cover_url}" width="100">` : ""}
+                <div id="reviews-${book.id}"><em>Yorumlar yükleniyor...</em></div>
+                <hr>
+              `;
+              listDiv.appendChild(bookDiv);
 
-            .then(res => res.json())
-            .then(reviewData => {
-              const reviewsDiv = document.getElementById(`reviews-${book.id}`);
-              if (reviewData.success && reviewData.reviews.length > 0) {
-                let reviewsHTML = "<ul>";
-                reviewData.reviews.forEach(r => {
-                  reviewsHTML += `<li><strong>${r.username}</strong>: ⭐${r.rating} - ${r.comment}</li>`;
+              // Yorumları çek
+              fetch(`http://localhost:4000/api/reviews/${book.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+                .then((res) => res.json())
+                .then((reviewData) => {
+                  const reviewsDiv = document.getElementById(`reviews-${book.id}`);
+                  if (reviewData.success && reviewData.reviews.length > 0) {
+                    let html = "<ul>";
+                    reviewData.reviews.forEach((r) => {
+                      const reviewPayload = {
+                        id: r.id,
+                        book_id: book.id,
+                        rating: r.rating,
+                        comment: r.comment,
+                      };
+                      const payloadStr = encodeURIComponent(JSON.stringify(reviewPayload));
+
+                      html += `<li><strong>${r.username}</strong>: ⭐${r.rating} - ${r.comment}`;
+
+                      if (r.created_at) {
+                        const tarih = new Date(r.created_at).toLocaleString("tr-TR");
+                        html += `<br><small style="color: gray;">${tarih}</small>`;
+                      }
+
+                      if (r.user_id === currentUserId) {
+                        html += `
+                          <br>
+                          <button onclick="deleteReview(${r.id}, ${book.id})">Sil</button>
+                          <button onclick="editReview('${payloadStr}')">Düzenle</button>
+                        `;
+                      }
+
+                      html += "</li>";
+                    });
+                    html += "</ul>";
+                    reviewsDiv.innerHTML = html;
+                  } else {
+                    reviewsDiv.innerHTML = "<em>Henüz yorum yok.</em>";
+                  }
+                })
+                .catch((err) => {
+                  console.error(`[REVIEW FETCH] ${book.id}:`, err);
+                  document.getElementById(`reviews-${book.id}`).innerHTML =
+                    "<em>Yorumlar yüklenemedi.</em>";
                 });
-                reviewsHTML += "</ul>";
-                reviewsDiv.innerHTML = reviewsHTML;
-              } else {
-                reviewsDiv.innerHTML = "<em>Henüz yorum yok.</em>";
-              }
-            })
-            .catch(err => {
-              document.getElementById(`reviews-${book.id}`).innerHTML = "<em>Yorumlar yüklenemedi.</em>";
-              console.error(`[REVIEW FETCH] Kitap ID ${book.id}:`, err);
             });
+          }
         });
-      } else {
-        document.getElementById("bookList").textContent = "Kitaplar alınamadı.";
+    }
+
+    // Silme işlemi
+    function deleteReview(reviewId, bookId) {
+      if (!confirm("Bu yorumu silmek istiyor musun?")) return;
+
+      fetch(`http://localhost:4000/api/reviews/${reviewId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            alert("Yorum silindi.");
+            location.reload();
+          } else {
+            alert("Silme başarısız: " + data.message);
+          }
+        })
+        .catch((err) => {
+          console.error("[REVIEW DELETE]", err);
+          alert("Sunucu hatası.");
+        });
+    }
+
+    // Düzenleme işlemi
+    let editingReviewId = null;
+    let editingBookId = null;
+
+    function editReview(payload) {
+      try {
+        const decoded = decodeURIComponent(payload);
+        const review = JSON.parse(decoded);
+
+        editingReviewId = review.id;
+        editingBookId = review.book_id;
+
+        document.getElementById("editRating").value = review.rating;
+        document.getElementById("editComment").value = review.comment;
+        document.getElementById("editReviewModal").style.display = "block";
+      } catch (e) {
+        console.error("[REVIEW EDIT ERROR]", e);
+        alert("Yorum verisi okunamadı.");
       }
-    })
-    .catch(err => {
-      console.error("[BOOK LIST] Hata:", err);
-      document.getElementById("bookList").textContent = "Sunucu hatası.";
-    });
+    }
+
+    function cancelEdit() {
+      editingReviewId = null;
+      editingBookId = null;
+      document.getElementById("editReviewModal").style.display = "none";
+    }
+
+    function submitEdit() {
+      const newRating = document.getElementById("editRating").value;
+      const newComment = document.getElementById("editComment").value;
+
+      if (!newRating || !newComment) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+      }
+
+      fetch(`http://localhost:4000/api/reviews/${editingReviewId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rating: newRating, comment: newComment }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            alert("Yorum güncellendi.");
+            location.reload();
+          } else {
+            alert("Güncelleme başarısız: " + data.message);
+          }
+        })
+        .catch((err) => {
+          console.error("[REVIEW UPDATE]", err);
+          alert("Sunucu hatası.");
+        });
+    }
   </script>
+
+  <div
+    id="editReviewModal"
+    style="display: none; padding: 10px; border: 1px solid #ccc; margin-top: 20px"
+  >
+    <h4>Yorumu Düzenle</h4>
+    <input type="number" id="editRating" min="1" max="5" placeholder="Puan (1-5)" />
+    <br />
+    <textarea
+      id="editComment"
+      placeholder="Yorumunuzu yazın"
+      rows="4"
+      cols="40"
+    ></textarea>
+    <br />
+    <button onclick="submitEdit()">Kaydet</button>
+    <button onclick="cancelEdit()">İptal</button>
+  </div>
 </body>
 </html>

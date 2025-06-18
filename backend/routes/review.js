@@ -45,12 +45,13 @@ router.get('/:book_id', authenticateToken, (req, res) => {
   const bookId = req.params.book_id;
 
   const sql = `
-    SELECT r.rating, r.comment, u.username 
-    FROM reviews r 
-    JOIN users u ON r.user_id = u.id 
-    WHERE r.book_id = ?
-    ORDER BY r.created_at DESC
-  `;
+  SELECT r.id, r.user_id, r.rating, r.comment, r.created_at, u.username 
+  FROM reviews r 
+  JOIN users u ON r.user_id = u.id 
+  WHERE r.book_id = ?
+  ORDER BY r.created_at DESC
+`;
+
 
   db.query(sql, [bookId], (err, results) => {
     if (err) {
@@ -61,5 +62,51 @@ router.get('/:book_id', authenticateToken, (req, res) => {
     res.json({ success: true, reviews: results });
   });
 });
+
+// DELETE /api/reviews/:id → yorumu sil
+router.delete('/:id', authenticateToken, (req, res) => {
+    const reviewId = req.params.id;
+    const userId = req.user.id;
+  
+    const sql = 'DELETE FROM reviews WHERE id = ? AND user_id = ?';
+    db.query(sql, [reviewId, userId], (err, result) => {
+      if (err) {
+        console.error('[DELETE REVIEW] Hata:', err);
+        return res.status(500).json({ success: false, message: 'Yorum silinirken hata oluştu.' });
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(403).json({ success: false, message: 'Bu yorumu silme yetkiniz yok.' });
+      }
+  
+      return res.json({ success: true, message: 'Yorum başarıyla silindi.' });
+    });
+  });
+  
+  // PUT /api/reviews/:id → yorumu güncelle
+router.put('/:id', authenticateToken, (req, res) => {
+    const reviewId = req.params.id;
+    const userId = req.user.id;
+    const { rating, comment } = req.body;
+  
+    if (!rating || !comment) {
+      return res.status(400).json({ success: false, message: 'Puan ve yorum zorunludur.' });
+    }
+  
+    const sql = 'UPDATE reviews SET rating = ?, comment = ? WHERE id = ? AND user_id = ?';
+    db.query(sql, [rating, comment, reviewId, userId], (err, result) => {
+      if (err) {
+        console.error('[UPDATE REVIEW] Hata:', err);
+        return res.status(500).json({ success: false, message: 'Yorum güncellenemedi.' });
+      }
+  
+      if (result.affectedRows === 0) {
+        return res.status(403).json({ success: false, message: 'Bu yorumu güncelleme yetkiniz yok.' });
+      }
+  
+      return res.json({ success: true, message: 'Yorum başarıyla güncellendi.' });
+    });
+  });
+  
 
 module.exports = router;
