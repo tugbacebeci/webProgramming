@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kitap Listesi</title>
+</head>
+<body>
+  <h2>Tüm Kitaplar</h2>
+
+  <div id="bookList"></div>
+
+  <button onclick="window.location.href='dashboard.html'">Geri Dön</button>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Giriş yapmalısın!");
+      window.location.href = "login.html";
+    }
+
+    // Kitapları çek
+    fetch("http://localhost:4000/api/books", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        const listDiv = document.getElementById("bookList");
+
+        data.books.forEach(book => {
+          const bookDiv = document.createElement("div");
+          bookDiv.innerHTML = `
+            <h3>${book.title}</h3>
+            <p><strong>Yazar:</strong> ${book.author}</p>
+            <p><strong>Açıklama:</strong> ${book.description}</p>
+            ${book.cover_url ? `<img src="${book.cover_url}" width="100">` : ""}
+            <div id="reviews-${book.id}"><em>Yorumlar yükleniyor...</em></div>
+            <hr>
+          `;
+          listDiv.appendChild(bookDiv);
+
+          // Her kitap için yorumları çek
+          fetch(`http://localhost:4000/api/reviews/${book.id}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+            })
+
+            .then(res => res.json())
+            .then(reviewData => {
+              const reviewsDiv = document.getElementById(`reviews-${book.id}`);
+              if (reviewData.success && reviewData.reviews.length > 0) {
+                let reviewsHTML = "<ul>";
+                reviewData.reviews.forEach(r => {
+                  reviewsHTML += `<li><strong>${r.username}</strong>: ⭐${r.rating} - ${r.comment}</li>`;
+                });
+                reviewsHTML += "</ul>";
+                reviewsDiv.innerHTML = reviewsHTML;
+              } else {
+                reviewsDiv.innerHTML = "<em>Henüz yorum yok.</em>";
+              }
+            })
+            .catch(err => {
+              document.getElementById(`reviews-${book.id}`).innerHTML = "<em>Yorumlar yüklenemedi.</em>";
+              console.error(`[REVIEW FETCH] Kitap ID ${book.id}:`, err);
+            });
+        });
+      } else {
+        document.getElementById("bookList").textContent = "Kitaplar alınamadı.";
+      }
+    })
+    .catch(err => {
+      console.error("[BOOK LIST] Hata:", err);
+      document.getElementById("bookList").textContent = "Sunucu hatası.";
+    });
+  </script>
+</body>
+</html>

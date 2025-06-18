@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kitap Ekle</title>
+</head>
+<body>
+  <h2>Yeni Kitap Ekle</h2>
+
+  <form id="bookForm">
+    <label for="title">Başlık:</label>
+    <input type="text" id="title" required><br><br>
+
+    <label for="author">Yazar:</label>
+    <input type="text" id="author" required><br><br>
+
+    <label for="description">Açıklama:</label><br>
+    <textarea id="description" rows="4" cols="50" required></textarea><br><br>
+
+    <label for="cover_url">Kapak Görseli URL:</label>
+    <input type="url" id="cover_url"><br><br>
+
+    <button type="submit">Kitap Ekle</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    document.getElementById("bookForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Kitap eklemek için önce giriş yapmalısın!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const bookData = {
+        title: document.getElementById("title").value,
+        author: document.getElementById("author").value,
+        description: document.getElementById("description").value,
+        cover_url: document.getElementById("cover_url").value
+      };
+
+      try {
+        const response = await fetch("http://localhost:4000/api/books/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(bookData)
+        });
+
+        const result = await response.json();
+        const msg = document.getElementById("message");
+
+        if (result.success) {
+          msg.textContent = "Kitap başarıyla eklendi!";
+          msg.style.color = "green";
+        } else {
+          msg.textContent = result.message || "Hata oluştu.";
+          msg.style.color = "red";
+        }
+      } catch (err) {
+        console.error("[ADD BOOK HTML]", err);
+        document.getElementById("message").textContent = "Sunucu hatası.";
+        document.getElementById("message").style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
