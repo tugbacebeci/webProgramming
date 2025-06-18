@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+}
+
+.login-container {
+    background: #fff;
+    padding: 2.5rem 2rem;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container h2 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: #3a3a3a;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: #555;
+    font-size: 0.98rem;
+}
+
+.login-container input[type="email"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f7f7f7;
+    font-size: 1rem;
+    transition: border 0.2s;
+}
+
+.login-container input:focus {
+    border: 1.5px solid #8ec5fc;
+    outline: none;
+    background: #fff;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(90deg, #8ec5fc 0%, #e0c3fc 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.login-btn:hover {
+    background: linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.register-link {
+    color: #8ec5fc;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+    margin-top: 0.5rem;
+}
+
+.register-link a {
+    color: #8ec5fc;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    color: #6a82fb;
+    text-decoration: underline;
+}
+
+#message {
+    margin-top: 0.7rem;
+    font-size: 1rem;
+    min-height: 1.2em;
+}

@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+body {
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    width: 100%;
+    padding: 2rem 0 1.2rem 0;
+    text-align: center;
+    background: transparent;
+}
+
+.site-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.5rem;
+    color: #6a82fb;
+    letter-spacing: 2px;
+    margin: 0;
+    text-shadow: 0 2px 12px rgba(106,130,251,0.08);
+    user-select: none;
+}
+
+.page-container {
+    background: #fff;
+    padding: 2.5rem 2rem;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+    width: 350px;
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-container form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: #555;
+    font-size: 0.98rem;
+}
+
+.page-container input,
+.page-container textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #f7f7f7;
+    font-size: 1rem;
+    transition: border 0.2s;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.page-container input:focus,
+.page-container textarea:focus {
+    border: 1.5px solid #8ec5fc;
+    background: #fff;
+}
+
+.button,
+.page-container button {
+    width: 100%;
+    padding: 0.8rem;
+    background: linear-gradient(90deg, #8ec5fc 0%, #e0c3fc 100%);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.button:hover,
+.page-container button:hover {
+    background: linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+
+.register-link, .login-link {
+    color: #8ec5fc;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+    margin-top: 0.5rem;
+}
+
+.register-link a, .login-link a {
+    color: #8ec5fc;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover, .login-link a:hover {
+    color: #6a82fb;
+    text-decoration: underline;
+}
+
+#message {
+    margin-top: 0.7rem;
+    font-size: 1rem;
+    min-height: 1.2em;
+} 

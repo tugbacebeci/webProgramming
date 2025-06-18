@@ -2,45 +2,51 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Profil Sayfası</title>
+  <title>Profil</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Hoş geldin, <span id="username">...</span></h2>
-  <p>Bu sayfa sadece giriş yapan kullanıcılara açıktır. 🫶</p>
+  <div class="header">
+    <h1 class="site-title">Book Reviews</h1>
+  </div>
+  <div class="page-container">
+    <h2>Hoş geldin, <span id="username">...</span></h2>
+    <p>Bu sayfa sadece giriş yapan kullanıcılara açıktır. 🫶</p>
 
-  <button id="logoutBtn">Çıkış Yap</button>
+    <button id="logoutBtn">Çıkış Yap</button>
 
-  <script>
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("Bu sayfayı görmek için giriş yapmalısın!");
-      window.location.href = "login.html";
-    }
-
-    fetch("http://localhost:4000/api/auth/profile", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById("username").textContent = data.username;
-      } else {
-        alert("Token geçersiz. Tekrar giriş yap!");
+    <script>
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Bu sayfayı görmek için giriş yapmalısın!");
         window.location.href = "login.html";
       }
-    })
-    .catch(err => {
-      alert("Sunucu hatası ");
-      console.error("[PROFILE HTML]", err);
-    });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("token");
-      window.location.href = "login.html";
-    });
-  </script>
+      fetch("http://localhost:4000/api/auth/profile", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("username").textContent = data.username;
+        } else {
+          alert("Token geçersiz. Tekrar giriş yap!");
+          window.location.href = "login.html";
+        }
+      })
+      .catch(err => {
+        alert("Sunucu hatası ");
+        console.error("[PROFILE HTML]", err);
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+      });
+    </script>
+  </div>
 </body>
 </html>

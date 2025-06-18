@@ -3,62 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Hoş geldin, <span id="username">...</span> 👋</h2>
+  <div class="header">
+    <h1 class="site-title">Book Reviews</h1>
+  </div>
+  <div class="page-container">
+    <h2>Hoş geldin, <span id="username">...</span> 👋</h2>
 
-  <p>Ne yapmak istersin?</p>
+    <p>Ne yapmak istersin?</p>
 
-  <button onclick="goToBooks()">📚 Kitapları Görüntüle</button>
-  <button onclick="goToAddBook()">➕ Yeni Kitap Ekle</button>
-  <button onclick="goToAddReview()">✍️ Yorum Ekle</button>
-  <button onclick="logout()">🚪 Çıkış Yap</button>
+    <button onclick="goToBooks()">📚 Kitapları Görüntüle</button>
+    <button onclick="goToAddBook()">➕ Yeni Kitap Ekle</button>
+    <button onclick="goToAddReview()">✍️ Yorum Ekle</button>
+    <button onclick="logout()">🚪 Çıkış Yap</button>
 
-  <script>
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Bu sayfayı görmek için giriş yapmalısın!");
-      window.location.href = "login.html";
-    }
-
-    // Kullanıcı adını token'dan çekmek yerine backend'den çekiyoruz
-    fetch("http://localhost:4000/api/auth/profile", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        document.getElementById("username").textContent = data.username;
-      } else {
-        alert("Token geçersiz, lütfen tekrar giriş yap.");
+    <script>
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Bu sayfayı görmek için giriş yapmalısın!");
         window.location.href = "login.html";
       }
-    })
-    .catch(err => {
-      console.error("[DASHBOARD] Profil verisi alınamadı:", err);
-      alert("Sunucu hatası.");
-      window.location.href = "login.html";
-    });
 
-    function goToBooks() {
-      window.location.href = "book-list.html";
-    }
+      // Kullanıcı adını token'dan çekmek yerine backend'den çekiyoruz
+      fetch("http://localhost:4000/api/auth/profile", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById("username").textContent = data.username;
+        } else {
+          alert("Token geçersiz, lütfen tekrar giriş yap.");
+          window.location.href = "login.html";
+        }
+      })
+      .catch(err => {
+        console.error("[DASHBOARD] Profil verisi alınamadı:", err);
+        alert("Sunucu hatası.");
+        window.location.href = "login.html";
+      });
 
-    function goToAddBook() {
-      window.location.href = "add-book.html";
-    }
+      function goToBooks() {
+        window.location.href = "book-list.html";
+      }
 
-    function goToAddReview() {
-    window.location.href = "add-review.html";
-    }
+      function goToAddBook() {
+        window.location.href = "add-book.html";
+      }
 
-    function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "login.html";
-    }
-  </script>
+      function goToAddReview() {
+        window.location.href = "add-review.html";
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+      }
+    </script>
+  </div>
 </body>
 </html>
